@@ -11,7 +11,6 @@ env:
   FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
   FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
   FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
-  ENABLE_NUKE_CERTS: ${{ secrets.ENABLE_NUKE_CERTS }}
 
 jobs:
   validate:
@@ -78,11 +77,11 @@ jobs:
           if [ "$CERT_STATUS" != "true" ] && [ "$ENABLE_NUKE_CERTS" != "true" ]; then
             echo "::notice::🔔 Automated renewal of certificates is disabled because the repository variable ENABLE_NUKE_CERTS is not set to 'true'."
           fi
-          # # Check if ENABLE_NUKE_CERTS is not set to true when certs are not valid
-          # if [ "$CERT_STATUS" = "true" ] && [ "$ENABLE_NUKE_CERTS" != "true" ]; then
-          #   echo "::error::❌ No valid distribution certificate found. Automated renewal of certificates was skipped because the repository variable ENABLE_NUKE_CERTS is not set to 'true'."
-          #   exit 1
-          # fi
+          # Check if ENABLE_NUKE_CERTS is not set to true when certs are not valid
+          if [ "$CERT_STATUS" = "true" ] && [ "$ENABLE_NUKE_CERTS" != "true" ]; then
+            echo "::error::❌ No valid distribution certificate found. Automated renewal of certificates was skipped because the repository variable ENABLE_NUKE_CERTS is not set to 'true'."
+            exit 1
+          fi
           # Check if vars.FORCE_NUKE_CERTS is not set to true
           if [ vars.FORCE_NUKE_CERTS = "true" ]; then
             echo "::warning::‼️ Nuking of certificates was forced because the repository variable FORCE_NUKE_CERTS is set to 'true'."
