@@ -11,6 +11,7 @@ env:
   FASTLANE_KEY_ID: ${{ secrets.FASTLANE_KEY_ID }}
   FASTLANE_ISSUER_ID: ${{ secrets.FASTLANE_ISSUER_ID }}
   FASTLANE_KEY: ${{ secrets.FASTLANE_KEY }}
+  ENABLE_NUKE_CERTS: ${{ secrets.ENABLE_NUKE_CERTS }}
 
 jobs:
   validate:
