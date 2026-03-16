@@ -203,6 +203,15 @@ jobs:
           # Now Line — adds vertical current-time line to all charts (glucose, IOB, COB, dose)
           git apply ./patches/01-now-line.patch --directory=LoopKit -v --whitespace=fix
 
+          # Override Sensitivity — finer-grained override insulin needs (50%-200%, 5% steps)
+          # Useful for exercise, illness, and stress adjustments
+          git apply ./patches/02-override-sensitivity.patch --directory=LoopKit -v --whitespace=fix
+
+          # Submodule Loop patches:
+          # Future Carbs 4h — extends future carb entry from 1 hour to 4 hours
+          # Allows pre-bolusing/carb-logging for meals planned further ahead
+          git apply ./patches/03-future-carbs-4h.patch --directory=Loop -v --whitespace=fix
+
           # Submodule xxxxx patches:
 
           # Add patches for customization of additional submodules by following the templates above, 
