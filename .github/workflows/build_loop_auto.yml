@@ -1,7 +1,11 @@
-name: 4. Build Loop Manual
-run-name: Build Loop Manual (${{ github.ref_name }})
+name: 4. Build Loop Auto 
+run-name: Build Loop Auto (${{ github.ref_name }})
 on:
   workflow_dispatch:
+  schedule:
+    # Check for updates every Sunday
+    #   Later logic builds if there are updates or if it is the 2nd Sunday of the month
+    - cron: "33 7 * * 0" # Sunday at UTC 7:33
 
 env:
   GH_PAT: ${{ secrets.GH_PAT }}
@@ -184,10 +188,10 @@ jobs:
       - name: Customize Loop
         run: |
 
-          # LoopWorkspace patches (workspace-level only, not submodule patches)
-          # -applies any patches located in the LoopWorkspace/patches/workspace/ directory
-          if $(ls ./patches/workspace/* &> /dev/null 2>&1); then
-          git apply ./patches/workspace/* --allow-empty -v --whitespace=fix
+          # LoopWorkspace patches
+          # -applies any patches located in the LoopWorkspace/patches/ directory
+          if $(ls ./patches/* &> /dev/null); then
+          git apply ./patches/* --allow-empty -v --whitespace=fix
           fi
 
           # Submodule Loop patches:
@@ -196,17 +200,9 @@ jobs:
           #curl https://github.com/loopnlearn/Loop/commit/d206432b024279ef710df462b20bd464cd9682d4.patch | git apply --directory=Loop -v --whitespace=fix
 
           # Submodule LoopKit patches:
-          # Now Line — adds vertical current-time line to all charts (glucose, IOB, COB, dose)
-          git apply ./patches/01-now-line.patch --directory=LoopKit -v --whitespace=fix
-
-          # Override Sensitivity — finer-grained override insulin needs (50%-200%, 5% steps)
-          # Useful for exercise, illness, and stress adjustments
-          git apply ./patches/02-override-sensitivity.patch --directory=LoopKit -v --whitespace=fix
-
-          # Submodule Loop patches:
-          # Future Carbs 4h — extends future carb entry from 1 hour to 4 hours
-          # Allows pre-bolusing/carb-logging for meals planned further ahead
-          git apply ./patches/03-future-carbs-4h.patch --directory=Loop -v --whitespace=fix
+          # General template for customizing submodule LoopKit 
+          # Copy url from a GitHub commit or pull request and insert below, and remove the "#" sign from the beginning of the line to activate:
+          #curl url_to_github_commit.patch | git apply --directory=LoopKit -v --whitespace=fix
 
           # Submodule xxxxx patches:
 
