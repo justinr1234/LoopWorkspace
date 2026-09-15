@@ -1,7 +1,7 @@
-diff --git a/LoopKitUI/Charts/COBChart.swift b/LoopKitUI/Charts/COBChart.swift
+diff --git a/LoopKit/LoopKitUI/Charts/COBChart.swift b/LoopKit/LoopKitUI/Charts/COBChart.swift
 index 2bbae1e7..6cbdbde7 100644
---- a/LoopKitUI/Charts/COBChart.swift
-+++ b/LoopKitUI/Charts/COBChart.swift
+--- a/LoopKit/LoopKitUI/Charts/COBChart.swift
++++ b/LoopKit/LoopKitUI/Charts/COBChart.swift
 @@ -63,6 +63,10 @@ public extension COBChart {
          // Grid lines
          let gridLayer = ChartGuideLinesForValuesLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guideLinesLayerSettings, axisValuesX: Array(xAxisValues.dropFirst().dropLast()), axisValuesY: yAxisValues)
@@ -21,10 +21,10 @@ index 2bbae1e7..6cbdbde7 100644
              xAxisLayer,
              yAxisLayer,
              cobChartCache?.highlightLayer,
-diff --git a/LoopKitUI/Charts/DoseChart.swift b/LoopKitUI/Charts/DoseChart.swift
+diff --git a/LoopKit/LoopKitUI/Charts/DoseChart.swift b/LoopKit/LoopKitUI/Charts/DoseChart.swift
 index ad30019d..6f34555c 100644
---- a/LoopKitUI/Charts/DoseChart.swift
-+++ b/LoopKitUI/Charts/DoseChart.swift
+--- a/LoopKit/LoopKitUI/Charts/DoseChart.swift
++++ b/LoopKit/LoopKitUI/Charts/DoseChart.swift
 @@ -106,6 +106,10 @@ public extension DoseChart {
          // Grid lines
          let gridLayer = ChartGuideLinesForValuesLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guideLinesLayerSettings, axisValuesX: Array(xAxisValues.dropFirst().dropLast()), axisValuesY: yAxisValues)
@@ -44,10 +44,10 @@ index ad30019d..6f34555c 100644
              xAxisLayer,
              yAxisLayer,
              zeroGuidelineLayer,
-diff --git a/LoopKitUI/Charts/IOBChart.swift b/LoopKitUI/Charts/IOBChart.swift
+diff --git a/LoopKit/LoopKitUI/Charts/IOBChart.swift b/LoopKit/LoopKitUI/Charts/IOBChart.swift
 index 54d09211..aff259f4 100644
---- a/LoopKitUI/Charts/IOBChart.swift
-+++ b/LoopKitUI/Charts/IOBChart.swift
+--- a/LoopKit/LoopKitUI/Charts/IOBChart.swift
++++ b/LoopKit/LoopKitUI/Charts/IOBChart.swift
 @@ -66,6 +66,10 @@ public extension IOBChart {
          // Grid lines
          let gridLayer = ChartGuideLinesForValuesLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guideLinesLayerSettings, axisValuesX: Array(xAxisValues.dropFirst().dropLast()), axisValuesY: yAxisValues)
@@ -67,10 +67,10 @@ index 54d09211..aff259f4 100644
              xAxisLayer,
              yAxisLayer,
              zeroGuidelineLayer,
-diff --git a/LoopKitUI/Charts/PredictedGlucoseChart.swift b/LoopKitUI/Charts/PredictedGlucoseChart.swift
+diff --git a/LoopKit/LoopKitUI/Charts/PredictedGlucoseChart.swift b/LoopKit/LoopKitUI/Charts/PredictedGlucoseChart.swift
 index bd786fe4..0dcf20c9 100644
---- a/LoopKitUI/Charts/PredictedGlucoseChart.swift
-+++ b/LoopKitUI/Charts/PredictedGlucoseChart.swift
+--- a/LoopKit/LoopKitUI/Charts/PredictedGlucoseChart.swift
++++ b/LoopKit/LoopKitUI/Charts/PredictedGlucoseChart.swift
 @@ -170,6 +170,10 @@ extension PredictedGlucoseChart {
          // Grid lines
          let gridLayer = ChartGuideLinesForValuesLayer(xAxis: xAxisLayer.axis, yAxis: yAxisLayer.axis, settings: guideLinesLayerSettings, axisValuesX: Array(xAxisValues.dropFirst().dropLast()), axisValuesY: yAxisValues)

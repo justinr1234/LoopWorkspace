@@ -1,7 +1,13 @@
 # Custom Patches for justinr1234/LoopWorkspace
 
-These patches are automatically applied during the GitHub Actions browser build
-(see `.github/workflows/build_loop.yml` → "Customize Loop" step).
+Every `*.patch` file here is applied by LoopKit's stock "Customize Loop" step in
+both build workflows (`build_loop.yml` and `build_loop_auto.yml`):
+
+    git apply ./patches/* --allow-empty -v --whitespace=fix
+
+That line ships with upstream, so the workflows in this fork stay identical to
+LoopKit/LoopWorkspace and upstream syncs can't drop or break the patch step.
+**Don't edit the build workflows to add patches.**
 
 ## Active Patches
 
@@ -30,10 +36,26 @@ These patches are automatically applied during the GitHub Actions browser build
 
 ## Adding New Patches
 
-1. Create a `.patch` file in this directory with numeric prefix (e.g., `04-my-change.patch`)
-2. Add a corresponding `git apply` line in `build_loop.yml` specifying the correct `--directory=SubmoduleName`
-3. Workspace-level patches go in `patches/workspace/` and are auto-applied
-4. Test that the patch applies cleanly: `git apply --check patches/NN-name.patch --directory=SubmoduleName`
+1. Make the change inside the submodule, then write the patch with paths relative
+   to the LoopWorkspace root (`LoopKit/...`, `Loop/...`), e.g.:
+
+       git -C LoopKit diff --src-prefix=a/LoopKit/ --dst-prefix=b/LoopKit/ > patches/04-my-change.patch
+
+2. Use a numeric prefix; patches apply in filename order.
+3. Keep only `*.patch` and `*.md` files here. A subdirectory makes the stock
+   `git apply ./patches/*` fail.
+4. Verify from the LoopWorkspace root (submodules checked out, `yq` installed):
+
+       .github/scripts/check_custom_patches.sh
+
+## Safety Net
+
+`.github/workflows/check_custom_patches.yml` (fork-only) runs on every push to
+`dev` and daily. It runs each build workflow's own "Customize Loop" step and
+fails if any patch here isn't applied, both against this fork (the next build)
+and against upstream's latest `dev` (the next sync). A failure means a patch
+needs refreshing, or upstream changed how patches are applied, and it shows up
+before the Sunday build.
 
 ## References
 

@@ -1,7 +1,7 @@
-diff --git a/Loop/Models/LoopConstants.swift b/Loop/Models/LoopConstants.swift
+diff --git a/Loop/Loop/Models/LoopConstants.swift b/Loop/Loop/Models/LoopConstants.swift
 index a62fc138..795c5a6e 100644
---- a/Loop/Models/LoopConstants.swift
-+++ b/Loop/Models/LoopConstants.swift
+--- a/Loop/Loop/Models/LoopConstants.swift
++++ b/Loop/Loop/Models/LoopConstants.swift
 @@ -25,7 +25,7 @@ enum LoopConstants {
      static let maxCarbAbsorptionTime = TimeInterval(hours: 8)
      

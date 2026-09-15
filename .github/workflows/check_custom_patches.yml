@@ -1,0 +1,48 @@
+name: Check Custom Patches
+# Fork-only workflow (not in LoopKit/LoopWorkspace), so upstream syncs never touch it.
+# Runs each build workflow's own "Customize Loop" step and fails if any patch in
+# patches/ is not applied: against this fork (the next build) and against
+# upstream's latest code (the next sync), so breakage shows up before build day.
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [dev]
+  schedule:
+    - cron: "17 6 * * *" # daily; the auto build runs Sundays at 07:33 UTC
+
+permissions:
+  contents: read
+
+jobs:
+  check:
+    name: ${{ matrix.name }}
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - name: Fork (next build)
+            repository: ${{ github.repository }}
+            ref: ${{ github.sha }}
+          - name: Upstream (next sync)
+            repository: LoopKit/LoopWorkspace
+            ref: ${{ github.ref_name }}
+    steps:
+      - name: Checkout ${{ matrix.repository }}
+        uses: actions/checkout@v5
+        with:
+          repository: ${{ matrix.repository }}
+          ref: ${{ matrix.ref }}
+          submodules: recursive
+
+      - name: Checkout custom patches
+        uses: actions/checkout@v5
+        with:
+          path: .custom
+
+      - name: Use this fork's patches
+        run: rm -rf patches && cp -R .custom/patches patches
+
+      - name: Apply and verify patches
+        run: bash .custom/.github/scripts/check_custom_patches.sh

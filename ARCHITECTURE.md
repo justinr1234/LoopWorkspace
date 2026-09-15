@@ -192,19 +192,16 @@ The build pipeline has a **built-in patch system** in the "Customize Loop" step:
 if $(ls ./patches/* &> /dev/null); then
   git apply ./patches/* --allow-empty -v --whitespace=fix
 fi
-
-# Submodule patches (via curl from GitHub commits/PRs):
-# curl https://github.com/.../commit.patch | git apply --directory=Loop -v --whitespace=fix
 ```
 
 ### How It Works
-1. **Workspace-level patches:** Drop `.patch` files in `patches/` directory — applied with `git apply`
-2. **Submodule patches:** Use `curl` to fetch patches from GitHub commits/PRs, apply with `--directory=SubmoduleName`
-3. Patches are applied **after** checkout but **before** build
-4. This means patches survive upstream syncs — they're reapplied every build
+1. Every `patches/*.patch` is applied from the workspace root with `git apply`, submodule changes included, because patch paths are written relative to the root (`LoopKit/...`, `Loop/...`)
+2. Patches are applied **after** checkout but **before** build
+3. The build workflows stay identical to upstream, so syncs never touch the patch step; patches are reapplied every build
+4. `.github/workflows/check_custom_patches.yml` (fork-only) fails if any patch stops applying, to this fork or to upstream's latest `dev`
 
 ### Current State
-The `patches/` directory exists but is empty (just has `save_patches_here.md`).
+See `patches/README.md` for the active patches.
 
 ---
 
@@ -213,10 +210,9 @@ The `patches/` directory exists but is empty (just has `save_patches_here.md`).
 ### The Good News
 The infrastructure already exists! We just need to:
 
-1. **Create patches** — Generate `.patch` files for our customizations
-2. **Drop them in `patches/`** — Workspace-level changes
-3. **Add `curl | git apply --directory=X` lines** — For submodule changes
-4. **Commit to our fork** — Patches persist across upstream syncs
+1. **Create patches** — Generate `.patch` files with paths relative to the workspace root
+2. **Drop them in `patches/`** — No workflow edits; the build workflows stay identical to upstream
+3. **Commit to our fork** — Patches persist across upstream syncs
 
 ### Proposed Workflow
 
@@ -228,8 +224,6 @@ The infrastructure already exists! We just need to:
 └─────────────┘     └──────────────────┘     └─────────────────┘
                           │
                     patches/ directory
-                    + custom curl lines
-                    in build_loop.yml
 ```
 
 ### Implementation Plan
@@ -259,19 +253,18 @@ cd ~/p/LoopWorkspace
 # Make changes...
 git diff > patches/my-customization.patch
 
-# Generate a patch for submodule changes
-cd ~/p/LoopWorkspace/Loop
-# Make changes...
-git diff > ../patches/loop-custom.patch
-# Note: apply with --directory=Loop in build_loop.yml
+# Generate a patch for submodule changes (paths must include the submodule dir)
+cd ~/p/LoopWorkspace
+# Make changes in Loop/...
+git -C Loop diff --src-prefix=a/Loop/ --dst-prefix=b/Loop/ > patches/loop-custom.patch
 
-# Or reference a GitHub commit directly in build_loop.yml:
-# curl https://github.com/user/Loop/commit/abc123.patch | git apply --directory=Loop -v --whitespace=fix
+# Verify every patch lands via the workflows' own Customize Loop step
+.github/scripts/check_custom_patches.sh
 ```
 
 ### Key Considerations
 
-1. **Patch conflicts:** When upstream updates, patches might fail to apply. The build will fail, alerting us to update patches.
+1. **Patch conflicts:** When upstream updates, patches might fail to apply. The daily Check Custom Patches workflow flags this against upstream's latest `dev` before the build does.
 2. **Submodule patches are trickier:** Since submodules auto-update, patches against them may break more often. Consider:
    - Pinning submodule versions (fork the submodule too)
    - Using broader context in patches (`-C3` or more)

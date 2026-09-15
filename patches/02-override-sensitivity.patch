@@ -1,7 +1,7 @@
-diff --git a/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift b/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
+diff --git a/LoopKit/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift b/LoopKit/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
 index 250f71b..442ae5d 100644
---- a/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
-+++ b/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
+--- a/LoopKit/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
++++ b/LoopKit/LoopKitUI/Views/InsulinSensitivityScalingTableViewCell.swift
 @@ -16,7 +16,7 @@ protocol InsulinSensitivityScalingTableViewCellDelegate: AnyObject {
  
  final class InsulinSensitivityScalingTableViewCell: UITableViewCell {
