@@ -1,0 +1,70 @@
+diff --git a/OmnipodKit/OmnipodKit/Services/O5AppAttestService.swift b/OmnipodKit/OmnipodKit/Services/O5AppAttestService.swift
+index f271c32..dd608b3 100644
+--- a/OmnipodKit/OmnipodKit/Services/O5AppAttestService.swift
++++ b/OmnipodKit/OmnipodKit/Services/O5AppAttestService.swift
+@@ -170,11 +170,16 @@ class O5AppAttestService {
+ 
+     // MARK: - Pre-flight checks
+ 
+-    /// One-shot link-layer reachability check followed by a DNS resolution of the
+-    /// keymanager host. Throws an offline-flavored `O5AuthError` when the device has
+-    /// no usable path, or a DNS-flavored one when the host can't be resolved, within
+-    /// `timeout`. Still optimistic — cannot detect captive portals; those surface as
+-    /// URLErrors from later HTTP requests.
++    /// One-shot link-layer reachability check followed by a best-effort DNS warm-up of
++    /// the keymanager host. Throws an offline-flavored `O5AuthError` when the device has
++    /// no usable path. The DNS step is advisory only: `api.osaid-keymanager.org` is a
++    /// three-hop CNAME chain ending at a European load balancer with a 60s TTL on the
++    /// middle record, so a cold `getaddrinfo` routinely takes longer than the old 2s
++    /// budget and was failing the whole flow before a single request was made. When the
++    /// warm-up does not finish in time we continue anyway and let URLSession — with its
++    /// own 30s budget, resolver and proxy/VPN handling — report a real failure.
++    /// Still optimistic — cannot detect captive portals; those surface as URLErrors
++    /// from later HTTP requests.
+     private func checkInternetConnection(timeout: TimeInterval = 2.0) async throws {
+         let monitor = NWPathMonitor()
+         defer { monitor.cancel() }
+@@ -208,33 +213,28 @@ class O5AppAttestService {
+                     comment: "O5 fetch failure: offline at pre-flight, recovery suggestion"))
+         }
+ 
+-        // Resolve the keymanager host so DNS failures surface here as a clear
+-        // pre-flight error rather than an opaque URLError on the first HTTP call.
+-        // Retry a couple of times (1s apart) to ride out transient resolver hiccups.
++        // Warm the resolver cache for the keymanager host. This is advisory: a miss here
++        // is not evidence that the host is unreachable, only that the lookup did not
++        // finish inside our budget, so we never fail the flow on it.
+         if let host = URL(string: o5KeyManagerBaseURL)?.host {
+             let maxAttempts = 3
+-            var resolved = false
+             for attempt in 1...maxAttempts {
+-                if await resolveHostname(host, timeout: timeout) {
+-                    resolved = true
++                if await resolveHostname(host, timeout: dnsTimeout) {
+                     break
+                 }
+                 if attempt < maxAttempts {
+                     try? await Task.sleep(nanoseconds: 1_000_000_000)
+                 }
+             }
+-            if !resolved {
+-                throw O5AuthError(
+-                    message: LocalizedString(
+-                        "Couldn’t look up the key-management server.",
+-                        comment: "O5 fetch failure: DNS resolution failed, primary line"),
+-                    recoverySuggestion: LocalizedString(
+-                        "Please check your Internet connection and try again.",
+-                        comment: "O5 fetch failure: DNS resolution failed, recovery suggestion"))
+-            }
+         }
+     }
+ 
++    /// Budget for a single `getaddrinfo` attempt against the keymanager host. Deliberately
++    /// far larger than the link-layer probe budget: the name is a CNAME chain and the
++    /// authoritative answer comes from Europe, so first-hit lookups on cellular commonly
++    /// need several seconds.
++    private var dnsTimeout: TimeInterval { 8.0 }
++
+     /// Resolves `host` via `getaddrinfo` on a background queue, returning `true` on
+     /// success. Races the lookup against `timeout` so a hung resolver can't stall the
+     /// flow; a late-returning lookup simply no-ops against the already-resumed continuation.
